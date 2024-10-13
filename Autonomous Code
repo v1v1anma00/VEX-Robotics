@@ -1,0 +1,103 @@
+# Motor and drivetrain setup
+Shooter = Motor(PORT1)
+shooter2 = Motor(PORT2)
+drivetrain = Drivetrain(Motor(PORT3), Motor(PORT4), 319.19, 295, 40, MM)
+digital_out_b = DigitalOut(PORT5)
+digital_out_c = DigitalOut(PORT6)
+
+# Autonomous functions
+def onauton_autonomous_0():
+    drivetrain.drive_for(FORWARD, 1000, MM)
+    drivetrain.turn_for(RIGHT, 70, DEGREES)
+    drivetrain.drive_for(FORWARD, 1500, MM)
+    Shooter.set_timeout(4, SECONDS)
+    shooter2.set_timeout(4, SECONDS)
+    drivetrain.turn_for(RIGHT, 40, DEGREES)
+    Shooter.spin(FORWARD)
+    shooter2.spin(FORWARD)
+    wait(2, SECONDS)
+    drivetrain.turn_for(LEFT, 40, DEGREES)
+    drivetrain.drive_for(REVERSE, 1700, MM)
+    Shooter.stop()
+    shooter2.stop()
+
+def onauton_autonomous_1():
+    drivetrain.drive_for(FORWARD, 3500, MM)
+    drivetrain.turn_for(RIGHT, 215, DEGREES)
+    Shooter.set_timeout(4, SECONDS)
+    shooter2.set_timeout(4, SECONDS)
+    Shooter.spin(FORWARD)
+    shooter2.spin(FORWARD)
+    wait(2, SECONDS)
+    Shooter.stop()
+    shooter2.stop()
+    digital_out_b.set(True)
+    digital_out_c.set(True)
+    drivetrain.set_drive_velocity(90, PERCENT)
+    drivetrain.drive_for(FORWARD, 2000, MM)
+
+# Event handlers for controller buttons
+def onevent_controller_1buttonLeft_pressed_0():
+    digital_out_c.set(True)
+
+def onevent_controller_1buttonRight_pressed_0():
+    digital_out_c.set(False)
+
+def onevent_controller_1buttonY_pressed_0():
+    digital_out_b.set(False)
+
+def onevent_controller_1buttonR1_pressed_0():
+    Shooter.spin(FORWARD)
+    shooter2.spin(FORWARD)
+
+def onevent_controller_1buttonA_pressed_0():
+    digital_out_b.set(True)
+
+def onevent_controller_1buttonR2_pressed_0():
+    Shooter.stop()
+    shooter2.stop()
+
+# Setup function
+def when_started1():
+    drivetrain.set_drive_velocity(150, PERCENT)
+    drivetrain.set_turn_velocity(60, PERCENT)
+    Shooter.set_velocity(30, PERCENT)
+    shooter2.set_velocity(30, PERCENT)
+    digital_out_b.set(False)
+    digital_out_c.set(False)
+
+# Autonomous control function
+def vexcode_auton_function():
+    # Choose which autonomous routine to run
+    auton_task_0 = Thread(onauton_autonomous_0)
+    # Example logic to run only one autonomous task
+    if competition.is_autonomous():
+        auton_task_0 = Thread(onauton_autonomous_0)
+    # wait for the autonomous period to end
+    while competition.is_autonomous() and competition.is_enabled():
+        wait(10, MSEC)
+    # Stop the autonomous task
+    auton_task_0.stop()
+
+# Driver control function
+def vexcode_driver_function():
+    # Monitor the driver control tasks
+    while competition.is_driver_control() and competition.is_enabled():
+        wait(10, MSEC)
+
+# Competition control registration
+competition = Competition(vexcode_driver_function, vexcode_auton_function)
+
+# Controller button registration
+controller_1.buttonLeft.pressed(onevent_controller_1buttonLeft_pressed_0)
+controller_1.buttonRight.pressed(onevent_controller_1buttonRight_pressed_0)
+controller_1.buttonY.pressed(onevent_controller_1buttonY_pressed_0)
+controller_1.buttonR1.pressed(onevent_controller_1buttonR1_pressed_0)
+controller_1.buttonA.pressed(onevent_controller_1buttonA_pressed_0)
+controller_1.buttonR2.pressed(onevent_controller_1buttonR2_pressed_0)
+
+# Delay to ensure event handlers are registered properly
+wait(15, MSEC)
+
+# Initialize the system
+when_started1()
