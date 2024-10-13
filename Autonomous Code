@@ -1,3 +1,4 @@
+<python>
 # Motor and drivetrain setup
 Shooter = Motor(PORT1)
 shooter2 = Motor(PORT2)
